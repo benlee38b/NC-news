@@ -15,7 +15,6 @@ module.exports = [{
   created_at: 1479818163389,
 },
 {
-  body:
     'Replacing the quiet elegance of the dark suit and tie with the casual indifference of these muted earth tones is a form of fashion suicide, but, uh, call me crazy — onyou it works.',
   belongs_to: 'Living in the shadow of a great man',
   created_by: 'icellusedkars',
