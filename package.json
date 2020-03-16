@@ -4,10 +4,16 @@
   "description": "bc-nc-news",
   "main": "index.js",
   "scripts": {
-    "setup-dbs": "psql -f ./db/setup.sql",
+    "setup-test-dbs": "psql -f ./db/setup-test.sql",
+    "setup-dev-dbs": "psql -f ./db/setup-dev.sql",
     "seed": "knex seed:run",
     "test-utils": "mocha spec/utils.spec.js",
-    "test": "mocha spec/app.spec.js"
+    "test": "mocha spec/app.spec.js",
+    "seed-dev": "npm run setup-dev-dbs && knex seed:run",
+    "seed-test": "npm run setup-test-dbs && NODE_ENV=test knex seed:run",
+    "migrate:make": "knex migrate:make",
+    "migrate:latest": "knex migrate:latest",
+    "migrate:rollback": "knex migrate:rollback"
   },
   "repository": {
     "type": "git",
