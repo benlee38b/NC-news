@@ -1,9 +1,10 @@
 const psqlErrors = (err, req, res, next) => {
   psqlCodes = {
-    '': { status: 404, message: err.message }
+    '22P02': { status: 400, message: err.message }
   };
   if (psqlCodes[err.code]) {
     const { status, message } = psqlCodes[err.code];
+    res.status(status).send({ message });
   } else {
     next(err);
   }
@@ -18,6 +19,7 @@ const customExpressErrors = (err, req, res, next) => {
 };
 
 const send405Error = (req, res, next) => {
+  console.log('here');
   res.status(405).send({ message: 'method not allowed' });
 };
 
