@@ -23,6 +23,49 @@ exports.selectArticleById = article_id => {
         });
       }
       return article[0];
-      console.log(article);
+    });
+};
+
+exports.updateArticleById = (article_id, inc_votes) => {
+  if (!inc_votes) {
+    return Promise.reject({
+      message: 'Invalid Input: Missing Required Fields',
+      status: 400
+    });
+  }
+  if (typeof inc_votes !== 'number') {
+    return Promise.reject({
+      message: 'Invalid increment value on request',
+      status: 400
+    });
+  }
+  return connection('articles')
+    .where({ article_id })
+    .increment('votes', inc_votes)
+    .returning('*')
+    .then(article => {
+      if (article.length === 0) {
+        return Promise.reject({
+          status: 404,
+          message: 'Article_Id Not Found'
+        });
+      }
+      return article[0];
+    });
+};
+
+exports.insertCommentByArticleId = (author, body, article_id) => {
+  return connection('comments')
+    .insert({ author, body, article_id })
+    .returning('*')
+    .then(comment => {
+      console.log(comment);
+      if (comment.length === 0) {
+        return Promise.reject({
+          status: 404,
+          message: 'Article_Id Not Found'
+        });
+      }
+      return comment[0];
     });
 };
