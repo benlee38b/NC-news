@@ -1,17 +1,19 @@
 const {
   selectArticleById,
   updateArticleById,
-  insertCommentByArticleId
+  insertCommentByArticleId,
+  selectCommentsByArticleId
 } = require('../models/articleModels');
 
-exports.getArticleById = (req, res, next) => {
-  selectArticleById(req.params.article_id)
-    .then(article => {
-      res.send({ article });
+exports.getArticles = (req, res, next) => {
+  selectArticleById(req.params.article_id, req.query)
+    .then(articles => {
+      res.send({ articles });
     })
     .catch(err => {
-      // console.log(err);
+      console.log(err);
       if (err.code === '22P02') err.message = 'Article_id Not Valid';
+      if (err.code === '42703') err.message = 'Invalid query input';
       next(err);
     });
 };
@@ -47,6 +49,20 @@ exports.postCommentByArticleId = (req, res, next) => {
         err.message = 'Article_Id Does Not Exist';
       }
       if (err.code === '22P02') err.message = 'Invalid Article Id';
+      next(err);
+    });
+};
+
+exports.getCommentsByArticleId = (req, res, next) => {
+  sort_by = req.query.sort_by;
+  order = req.query.order;
+  selectCommentsByArticleId(req.params.article_id, sort_by, order)
+    .then(comments => {
+      res.send({ comments });
+    })
+    .catch(err => {
+      console.log(err);
+      if (err.code === '42703') err.message = 'Invalid query value';
       next(err);
     });
 };

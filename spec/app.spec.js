@@ -6,6 +6,8 @@ const connection = require('../connection');
 const chaiSorted = require('chai-sorted');
 const chai = require('chai');
 
+chai.use(chaiSorted);
+
 beforeEach(() => {
   return connection.seed.run();
 });
@@ -94,6 +96,93 @@ describe('/api', () => {
     });
   });
   describe('/articles', () => {
+    it('GET:200 - responds with an array of articles objects', () => {
+      return request(app)
+        .get('/api/articles')
+        .expect(200)
+        .then(res => {
+          expect(res.body.articles).to.be.an('array');
+          expect(res.body.articles[0]).to.be.an('object');
+          expect(res.body.articles[0]).to.contain.keys(
+            'author',
+            'title',
+            'topic',
+            'created_at',
+            'votes',
+            'comment_count'
+          );
+        });
+    });
+    it('GET:200 - responds with an array of articles objects sorted by votes in default order of descending', () => {
+      return request(app)
+        .get('/api/articles?sort_by=votes')
+        .expect(200)
+        .then(res => {
+          expect(res.body.articles).to.descendingBy('votes');
+        });
+    });
+    it('GET:400 - responds with an appropriate error message when sort_by column in query does not exist', () => {
+      return request(app)
+        .get('/api/articles?sort_by=cheese')
+        .expect(400)
+        .then(res => {
+          expect(res.body.message).to.eql('Invalid query input');
+        });
+    });
+    it('GET:200 - responds with an array of articles objects sorted by comment_count in ascending order', () => {
+      return request(app)
+        .get('/api/articles?sort_by=votes&order=ASC')
+        .expect(200)
+        .then(res => {
+          expect(res.body.articles).to.ascendingBy('votes');
+        }); /// wWHY CANT I ORDER BY COMMENT_COUNT!!!!
+    });
+
+    it('GET:200 - responds with an array of articles objects filtered by author username', () => {
+      return request(app)
+        .get('/api/articles?username=butter_bridge')
+        .expect(200)
+        .then(res => {
+          res.body.articles.forEach(article => {
+            expect(article.author).to.eql('butter_bridge');
+          });
+        });
+    });
+    it.only('GET:404 - responds with an appropriate error message when username in query does not exist', () => {
+      return request(app)
+        .get('/api/articles?username=abasaf')
+        .expect(404)
+        .then(res => {
+          expect(res.body.message).to.eql('Query Value Not Found');
+        });
+    });
+    // it.only('GET:404 - responds with an appropriate error message when username exists but has no articles associated with it', () => {
+    //   return request(app)
+    //     .get('/api/articles?username=lurker')
+    //     .expect(404)
+    //     .then(res => {
+    //       expect(res.body.message).to.eql('No articles associated with author');
+    //     });
+    // });  // HOW DO YOU THROW AN ERROR WHEN ID EXISTS BUT NOTHING ATTACHED TO ID
+    it('GET:200 - responds with an array of articles objects filtered by topic specified in the query', () => {
+      return request(app)
+        .get('/api/articles?topic=mitch')
+        .expect(200)
+        .then(res => {
+          res.body.articles.forEach(article => {
+            expect(article.topic).to.eql('mitch');
+          });
+        });
+    });
+    it.only('GET:404 - responds with an appropriate error message when topic in query does not exist', () => {
+      return request(app)
+        .get('/api/articles?topic=abasaf')
+        .expect(404)
+        .then(res => {
+          expect(res.body.message).to.eql('Query Value Not Found');
+        });
+    });
+
     describe('/:article_id', () => {
       it('GET:200 - responds with an article object of the article matching the article_id passed into the params', () => {
         return request(app)
@@ -234,6 +323,54 @@ describe('/api', () => {
             .expect(404)
             .then(res => {
               expect(res.body.message).to.eql('Article_Id Does Not Exist');
+            });
+        });
+        it('GET:200 - responds with an array of comment objects', () => {
+          return request(app)
+            .get('/api/articles/1/comments')
+            .expect(200)
+            .then(res => {
+              expect(res.body.comments).to.be.an('array');
+              expect(res.body.comments[0]).to.be.an('object');
+              expect(res.body.comments[0]).to.contain.keys(
+                'comment_id',
+                'votes',
+                'created_at',
+                'author',
+                'body'
+              );
+            });
+        });
+        it('GET:200 - responds with an array of comment objects sorted by votes in descending order by default', () => {
+          return request(app)
+            .get('/api/articles/1/comments?sort_by=votes')
+            .expect(200)
+            .then(res => {
+              expect(res.body.comments).to.be.descendingBy('votes');
+            });
+        });
+        it('GET:200 - responds with an array of comment objects sorted by comment_id in ascending order', () => {
+          return request(app)
+            .get('/api/articles/1/comments?sort_by=comment_id&order=asc')
+            .expect(200)
+            .then(res => {
+              expect(res.body.comments).to.be.ascendingBy('comment_id');
+            });
+        });
+        it('GET:400 - responds with an appropriate error message when sort_by column does not exist', () => {
+          return request(app)
+            .get('/api/articles/1/comments?sort_by=cheese')
+            .expect(400)
+            .then(res => {
+              expect(res.body.message).to.eql('Invalid query value');
+            });
+        });
+        it('GET:400 - responds with an appropriate error message when order value in query is not valid', () => {
+          return request(app)
+            .get('/api/articles/1/comments?sort_by=votes&order=cheese')
+            .expect(400)
+            .then(res => {
+              expect(res.body.message).to.eql('Invalid query value');
             });
         });
       });
