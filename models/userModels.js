@@ -12,7 +12,7 @@ exports.selectUserByUsername = username => {
     .select('*')
     .where({ username })
     .then(user => {
-      console.log(user);
+      // console.log(user);
       if (user.length === 0) {
         return Promise.reject({
           message: 'Username Not Found',

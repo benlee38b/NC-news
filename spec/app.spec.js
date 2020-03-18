@@ -135,9 +135,8 @@ describe('/api', () => {
         .expect(200)
         .then(res => {
           expect(res.body.articles).to.ascendingBy('votes');
-        }); /// wWHY CANT I ORDER BY COMMENT_COUNT!!!!
+        });
     });
-
     it('GET:200 - responds with an array of articles objects filtered by author username', () => {
       return request(app)
         .get('/api/articles?username=butter_bridge')
@@ -148,7 +147,7 @@ describe('/api', () => {
           });
         });
     });
-    it.only('GET:404 - responds with an appropriate error message when username in query does not exist', () => {
+    it('GET:404 - responds with an appropriate error message when username in query does not exist', () => {
       return request(app)
         .get('/api/articles?username=abasaf')
         .expect(404)
@@ -156,14 +155,24 @@ describe('/api', () => {
           expect(res.body.message).to.eql('Query Value Not Found');
         });
     });
-    // it.only('GET:404 - responds with an appropriate error message when username exists but has no articles associated with it', () => {
-    //   return request(app)
-    //     .get('/api/articles?username=lurker')
-    //     .expect(404)
-    //     .then(res => {
-    //       expect(res.body.message).to.eql('No articles associated with author');
-    //     });
-    // });  // HOW DO YOU THROW AN ERROR WHEN ID EXISTS BUT NOTHING ATTACHED TO ID
+    it('GET:404 - responds with an appropriate error message when username exists but has no articles associated with it', () => {
+      return request(app)
+        .get('/api/articles?username=lurker')
+        .expect(404)
+        .then(res => {
+          expect(res.body.message).to.eql(
+            'No Articles Associated With Username In Query'
+          );
+        });
+    });
+    it('GET:404 - responds with an appropriate error message when username is valid but does not exist', () => {
+      return request(app)
+        .get('/api/articles?username=helloooworlds')
+        .expect(404)
+        .then(res => {
+          expect(res.body.message).to.eql('Username Not Found');
+        });
+    });
     it('GET:200 - responds with an array of articles objects filtered by topic specified in the query', () => {
       return request(app)
         .get('/api/articles?topic=mitch')
@@ -174,12 +183,22 @@ describe('/api', () => {
           });
         });
     });
-    it.only('GET:404 - responds with an appropriate error message when topic in query does not exist', () => {
+    it('GET:404 - responds with an appropriate error message when topic exists but has no articles associated with it', () => {
+      return request(app)
+        .get('/api/articles?topic=paper')
+        .expect(404)
+        .then(res => {
+          expect(res.body.message).to.eql(
+            'No articles associated with topic in query'
+          );
+        });
+    });
+    it('GET:404 - responds with an appropriate error message when topic in query does not exist', () => {
       return request(app)
         .get('/api/articles?topic=abasaf')
         .expect(404)
         .then(res => {
-          expect(res.body.message).to.eql('Query Value Not Found');
+          expect(res.body.message).to.eql('Topic does not exist');
         });
     });
 
@@ -189,7 +208,7 @@ describe('/api', () => {
           .get('/api/articles/1')
           .expect(200)
           .then(res => {
-            expect(res.body.article.article_id).to.equal(1);
+            expect(res.body.articles.article_id).to.equal(1);
           });
       });
       it('GET:200 - returned article object has a key of comment_count totaling the comments attached to the passed article_id', () => {
@@ -197,7 +216,7 @@ describe('/api', () => {
           .get('/api/articles/1')
           .expect(200)
           .then(res => {
-            expect(res.body.article.comment_count).to.equal('13');
+            expect(res.body.articles.comment_count).to.equal('13');
           });
       });
       it('GET:404 - responds with an appropriate error message when the article_id cannot be found', () => {
@@ -373,6 +392,63 @@ describe('/api', () => {
               expect(res.body.message).to.eql('Invalid query value');
             });
         });
+      });
+    });
+  });
+  describe('/comments', () => {
+    describe('/:comment_id', () => {
+      it('PATCH: 201', () => {
+        return request(app)
+          .patch('/api/comments/2')
+          .send({ inc_votes: 20 })
+          .expect(201)
+          .then(res => {
+            expect(res.body.comment.votes).to.eql(34);
+          });
+      });
+      it('PATCH: 400 responds with an appropriate error message when comment_id is not valid', () => {
+        return request(app)
+          .patch('/api/comments/not-a-number')
+          .send({ inc_votes: 20 })
+          .expect(400)
+          .then(res => {
+            expect(res.body.message).to.eql('Comment_id is not valid');
+          });
+      });
+      it('PATCH: 404 - responds with an appropriate error message when comment_id is not found', () => {
+        return request(app)
+          .patch('/api/comments/999')
+          .send({ inc_votes: 20 })
+          .expect(404)
+          .then(res => {
+            expect(res.body.message).to.eql('Comment_id Not Found');
+          });
+      });
+      it('PATCH:400 - responds with an appropriate error message when inc_votes missing from the request body', () => {
+        return request(app)
+          .patch('/api/comments/999')
+          .send({})
+          .expect(400)
+          .then(res => {
+            expect(res.body.message).to.eql('Missing Required Fields');
+          });
+      });
+      it('PATCH:400 - responds with an appropriate error message when inc_votes value is invalid', () => {
+        return request(app)
+          .patch('/api/comments/999')
+          .send({ inc_votes: 'not-a-number' })
+          .expect(400)
+          .then(res => {
+            expect(res.body.message).to.eql('Increment Value Invalid');
+          });
+      });
+      it.only('DELETE:204 - responds with no body and a status of 204', () => {
+        return request(app)
+          .delete('/api/comments/2')
+          .expect(204)
+          .then(res => {
+            expect(res.body).to.eql({});
+          });
       });
     });
   });

@@ -12,6 +12,7 @@ exports.getArticles = (req, res, next) => {
     })
     .catch(err => {
       console.log(err);
+      console.log('hellloooo');
       if (err.code === '22P02') err.message = 'Article_id Not Valid';
       if (err.code === '42703') err.message = 'Invalid query input';
       next(err);
