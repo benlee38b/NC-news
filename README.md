@@ -15,6 +15,7 @@ In order to set this project up on you local machine you will need to install a 
 *mocha
 *chai
 \*chai-sorted
+
 In order to set up a development environment and connect to the dev database, you will need to enter into the project command line: npm run seed-dev. This will seed the dev database and connect you to it at the same time.
 
 ## Running The Tests
