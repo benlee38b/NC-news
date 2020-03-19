@@ -1,5 +1,6 @@
+const ENV = process.env.NODE_ENV || 'development';
 exports.up = function(knex) {
-  console.log('creating user table');
+  if (ENV === 'development') console.log('creating user table');
   return knex.schema.createTable('users', userTable => {
     userTable.string('username', [50]).primary();
     userTable.string('avatar_url').notNullable();
@@ -8,6 +9,6 @@ exports.up = function(knex) {
 };
 
 exports.down = function(knex) {
-  console.log('removing user table');
+  if (ENV === 'development') console.log('removing user table');
   return knex.schema.dropTable('users');
 };

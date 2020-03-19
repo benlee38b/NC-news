@@ -6,6 +6,10 @@ app.use(express.json());
 
 app.use('/api', apiRouter);
 
+app.get('/', function(req, res) {
+  res.send('root');
+});
+
 app.all('/*', (req, res, next) =>
   next({ status: 404, message: '404: File Not Found' })
 );

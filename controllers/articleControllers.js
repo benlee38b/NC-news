@@ -11,8 +11,7 @@ exports.getArticles = (req, res, next) => {
       res.send({ articles });
     })
     .catch(err => {
-      console.log(err);
-      console.log('hellloooo');
+      console.log(err, 'hello');
       if (err.code === '22P02') err.message = 'Article_id Not Valid';
       if (err.code === '42703') err.message = 'Invalid query input';
       next(err);
@@ -27,7 +26,6 @@ exports.patchArticleById = (req, res, next) => {
       res.status(201).send({ article });
     })
     .catch(err => {
-      // console.log(err);
       if (err.code === '22P02') err.message = 'Invalid Article Id';
       next(err);
     });
@@ -62,7 +60,6 @@ exports.getCommentsByArticleId = (req, res, next) => {
       res.send({ comments });
     })
     .catch(err => {
-      console.log(err);
       if (err.code === '42703') err.message = 'Invalid query value';
       next(err);
     });

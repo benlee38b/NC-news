@@ -1,5 +1,7 @@
+const ENV = process.env.NODE_ENV || 'development';
+
 exports.up = function(knex) {
-  console.log('creating topics table');
+  if (ENV === 'development') console.log('creating topics table');
   return knex.schema.createTable('topics', topicsTable => {
     topicsTable.string('slug').primary();
     topicsTable.string('description');
@@ -7,6 +9,6 @@ exports.up = function(knex) {
 };
 
 exports.down = function(knex) {
-  console.log('removing topics table');
+  if (ENV === 'development') console.log('removing topics table');
   return knex.schema.dropTable('topics');
 };

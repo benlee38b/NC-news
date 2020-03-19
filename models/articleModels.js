@@ -44,15 +44,7 @@ exports.selectArticleById = (article_id, query) => {
           message: 'Article_id Not Found'
         });
       }
-      // user exists but no articles
-      // user doesnt exist
-      if (articles.length === 0 && article_id) {
-        return Promise.reject({
-          status: 404,
-          message: 'username Not Found'
-        });
-      }
-      if (query.topic) {
+      if (query.topic && articles.length === 0) {
         return selectTopics().then(res => {
           const topic = res.filter(topic => {
             if (topic.slug === query.topic) {
@@ -73,23 +65,21 @@ exports.selectArticleById = (article_id, query) => {
           }
         });
       }
-      if (query.username) {
+      if (query.username && articles.length === 0) {
         return selectUserByUsername(query.username).then(user => {
-          console.log(user);
-          if (user.hasOwnProperty('username') && articles.length === 0) {
+          if (user.hasOwnProperty('username')) {
             return Promise.reject({
               status: 404,
               message: 'No Articles Associated With Username In Query'
             });
-          } else {
+          } else if (articles.length === 0) {
             return Promise.reject({
               status: 404,
-              message: 'Username Not Found'
+              message: 'Username Does Not Exist'
             });
           }
         });
       }
-
       if (articles.length === 1) return articles[0];
       else return articles;
     });
@@ -141,7 +131,7 @@ exports.insertCommentByArticleId = (author, body, article_id) => {
 
 exports.selectCommentsByArticleId = (article_id, sort_by, order) => {
   const regex = /(asc)|(desc)/g;
-  if (regex.test(order) === false) {
+  if (regex.test(order) === false && order) {
     return Promise.reject({
       status: 400,
       message: 'Invalid query value'

@@ -15,7 +15,7 @@ exports.selectUserByUsername = username => {
       // console.log(user);
       if (user.length === 0) {
         return Promise.reject({
-          message: 'Username Not Found',
+          message: 'Username Does Not Exist',
           status: 404
         });
       }

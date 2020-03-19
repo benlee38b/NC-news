@@ -70,7 +70,7 @@ describe('/api', () => {
           .get('/api/user/cheeze_wizz')
           .expect(404)
           .then(res => {
-            expect(res.body.message).to.eql('Username Not Found');
+            expect(res.body.message).to.eql('Username Does Not Exist');
           });
       });
       it('GET:400 - responds with an appropriate error message when the provided username is not valid', () => {
@@ -129,7 +129,7 @@ describe('/api', () => {
           expect(res.body.message).to.eql('Invalid query input');
         });
     });
-    it('GET:200 - responds with an array of articles objects sorted by comment_count in ascending order', () => {
+    it('GET:200 - responds with an array of articles objects sorted by votes in ascending order', () => {
       return request(app)
         .get('/api/articles?sort_by=votes&order=ASC')
         .expect(200)
@@ -152,7 +152,7 @@ describe('/api', () => {
         .get('/api/articles?username=abasaf')
         .expect(404)
         .then(res => {
-          expect(res.body.message).to.eql('Query Value Not Found');
+          expect(res.body.message).to.eql('Username Does Not Exist');
         });
     });
     it('GET:404 - responds with an appropriate error message when username exists but has no articles associated with it', () => {
@@ -163,14 +163,6 @@ describe('/api', () => {
           expect(res.body.message).to.eql(
             'No Articles Associated With Username In Query'
           );
-        });
-    });
-    it('GET:404 - responds with an appropriate error message when username is valid but does not exist', () => {
-      return request(app)
-        .get('/api/articles?username=helloooworlds')
-        .expect(404)
-        .then(res => {
-          expect(res.body.message).to.eql('Username Not Found');
         });
     });
     it('GET:200 - responds with an array of articles objects filtered by topic specified in the query', () => {
@@ -442,7 +434,7 @@ describe('/api', () => {
             expect(res.body.message).to.eql('Increment Value Invalid');
           });
       });
-      it.only('DELETE:204 - responds with no body and a status of 204', () => {
+      it('DELETE:204 - responds with no body and a status of 204', () => {
         return request(app)
           .delete('/api/comments/2')
           .expect(204)

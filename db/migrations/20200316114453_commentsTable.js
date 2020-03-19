@@ -1,5 +1,6 @@
+const ENV = process.env.NODE_ENV || 'development';
 exports.up = function(knex) {
-  console.log('creating comments table');
+  if (ENV === 'development') console.log('creating comments table');
   return knex.schema.createTable('comments', commentsTable => {
     commentsTable.increments('comment_id').primary();
     commentsTable
@@ -14,6 +15,6 @@ exports.up = function(knex) {
 };
 
 exports.down = function(knex) {
-  console.log('removing comments table');
+  if (ENV === 'development') console.log('removing comments table');
   return knex.schema.dropTable('comments');
 };
