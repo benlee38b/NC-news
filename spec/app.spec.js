@@ -150,6 +150,22 @@ describe('/api', () => {
           expect(res.body.articles).to.descendingBy('votes');
         });
     });
+    it('GET:200 - responds with an array of articles limited by the limit in the query value', () => {
+      return request(app)
+        .get('/api/articles?limit=5')
+        .expect(200)
+        .then(res => {
+          expect(res.body.articles.length).to.eql(5);
+        });
+    });
+    it('GET:200 - responds with an array of comments corresponding to the current page query used in the end point', () => {
+      return request(app)
+        .get('/api/articles?p=2')
+        .expect(200)
+        .then(res => {
+          expect(res.body.articles.length).to.equal(2);
+        });
+    });
     it('GET:400 - responds with an appropriate error message when sort_by column in query does not exist', () => {
       return request(app)
         .get('/api/articles?sort_by=cheese')
@@ -394,6 +410,15 @@ describe('/api', () => {
               expect(res.body.comments).to.be.descendingBy('votes');
             });
         });
+        it('GET:200 - responds with an array of comments with a length limited by a query value', () => {
+          return request(app)
+            .get('/api/articles/1/comments?limit=5')
+            .expect(200)
+            .then(res => {
+              expect(res.body.comments.length).to.equal(5);
+            });
+        });
+
         it('GET:200 - responds with a blank array when the article_id exists but has no attached comments', () => {
           return request(app)
             .get('/api/articles/2/comments')

@@ -6,5 +6,7 @@ const dbConfig =
     : require('./knexfile');
 const knex = require('knex');
 const connection = knex(dbConfig);
+const { attachPaginate } = require('knex-paginate');
+attachPaginate();
 
 module.exports = connection;

@@ -33,24 +33,25 @@ exports.selectArticleById = (article_id, query) => {
         queryBuilder.where('articles.topic', '=', `${query.topic}`);
       }
     })
+    .paginate({ perPage: query.limit || 10, currentPage: query.p || 1 })
     .then(articles => {
-      if (articles.length === 0 && article_id) {
+      if (articles.data.length === 0 && article_id) {
         return Promise.reject({
           status: 404,
           message: 'Article_id Not Found'
         });
       }
 
-      if (query.topic && articles.length === 0) {
+      if (query.topic && articles.data.length === 0) {
         return selectTopics(query.topic);
       }
 
-      if (query.author && articles.length === 0) {
+      if (query.author && articles.data.length === 0) {
         return selectUserByUsername(query.author);
       }
 
-      if (articles.length === 1) return articles[0];
-      else return articles;
+      if (articles.data.length === 1) return articles.data[0];
+      else return articles.data;
     });
 };
 
@@ -97,10 +98,10 @@ exports.insertCommentByArticleId = (author, body, article_id) => {
     });
 };
 
-exports.selectCommentsByArticleId = (article_id, sort_by, order) => {
+exports.selectCommentsByArticleId = (article_id, query) => {
   const regex = /(asc)|(desc)/g;
 
-  if (regex.test(order) === false && order) {
+  if (regex.test(query.order) === false && query.order) {
     return Promise.reject({
       status: 400,
       message: 'Invalid query value'
@@ -108,10 +109,11 @@ exports.selectCommentsByArticleId = (article_id, sort_by, order) => {
   }
   return connection('comments')
     .select('*')
-    .orderBy(sort_by || 'created_at', order || 'DESC')
+    .orderBy(query.sort_by || 'created_at', query.order || 'DESC')
     .where({ article_id })
+    .paginate({ perPage: query.limit || 10, currentPage: query.p || 1 })
     .then(comments => {
-      if (comments.length === 0) return checkIfArticleIdExists(article_id);
-      return comments;
+      if (comments.data.length === 0) return checkIfArticleIdExists(article_id);
+      return comments.data;
     });
 };

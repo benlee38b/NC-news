@@ -54,9 +54,7 @@ exports.postCommentByArticleId = (req, res, next) => {
 };
 
 exports.getCommentsByArticleId = (req, res, next) => {
-  sort_by = req.query.sort_by;
-  order = req.query.order;
-  selectCommentsByArticleId(req.params.article_id, sort_by, order)
+  selectCommentsByArticleId(req.params.article_id, req.query)
     .then(comments => {
       res.send({ comments });
     })
