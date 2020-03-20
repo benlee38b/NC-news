@@ -1,6 +1,7 @@
 const connection = require('../connection');
 const { selectTopics } = require('./topicModels');
 const { selectUserByUsername } = require('./userModels');
+const { checkIfArticleIdExists } = require('../db/utils/utils');
 
 exports.selectArticleById = (article_id, query) => {
   return connection('articles')
@@ -16,14 +17,7 @@ exports.selectArticleById = (article_id, query) => {
     .leftJoin('comments', 'articles.article_id', 'comments.article_id')
     .groupBy('articles.article_id')
     .count('comments.article_id AS comment_count')
-    .modify(queryBuilder => {
-      if (query.sort_by) {
-        queryBuilder.orderBy(
-          query.sort_by || 'created_at',
-          query.order || 'DESC'
-        );
-      }
-    })
+    .orderBy(query.sort_by || 'created_at', query.order || 'DESC')
     .modify(queryBuilder => {
       if (article_id) {
         queryBuilder.having('articles.article_id', '=', `${article_id}`);
@@ -114,19 +108,10 @@ exports.selectCommentsByArticleId = (article_id, sort_by, order) => {
   }
   return connection('comments')
     .select('*')
-    .modify(queryBuilder => {
-      if (sort_by) {
-        queryBuilder.orderBy(sort_by || 'created_at', order || 'desc');
-      }
-    })
+    .orderBy(sort_by || 'created_at', order || 'DESC')
     .where({ article_id })
     .then(comments => {
-      if (comments.length === 0) {
-        return Promise.reject({
-          status: 404,
-          message: 'Article_Id Does Not Exist'
-        });
-      }
+      if (comments.length === 0) return checkIfArticleIdExists(article_id);
       return comments;
     });
 };

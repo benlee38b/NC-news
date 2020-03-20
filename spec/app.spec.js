@@ -16,6 +16,35 @@ after(() => {
 });
 
 describe('/api', () => {
+  it('GET:200 - responds with an object of all the available endpoints', () => {
+    return request(app)
+      .get('/api')
+      .expect(200)
+      .then(res => {
+        expect(res.body.endpoints.endpoints).to.eql({
+          1: '/api',
+          2: '/api/topics',
+          3: '/api/users/:username',
+          4: '/api/articles',
+          5: '/api/articles/:article_id',
+          6: '/api/articles/:article_id/comments',
+          7: '/api/comments/:comment_id'
+        });
+      });
+  });
+  it('status:405 when invalid methods applied to path', () => {
+    const invalidMethods = ['patch', 'put', 'post', 'delete'];
+    const methodPromises = invalidMethods.map(method => {
+      return request(app)
+        [method]('/api')
+        .expect(405)
+        .then(({ body: { message } }) => {
+          expect(message).to.equal('method not allowed');
+        });
+    });
+    return Promise.all(methodPromises);
+  });
+
   describe('/topics', () => {
     it('GET: 200 - responds with an array of all topics', () => {
       return request(app)
@@ -363,6 +392,14 @@ describe('/api', () => {
             .expect(200)
             .then(res => {
               expect(res.body.comments).to.be.descendingBy('votes');
+            });
+        });
+        it('GET:200 - responds with a blank array when the article_id exists but has no attached comments', () => {
+          return request(app)
+            .get('/api/articles/2/comments')
+            .expect(200)
+            .then(res => {
+              expect(res.body.comments).to.eql([]);
             });
         });
         it('GET:200 - responds with an array of comment objects sorted by comment_id in ascending order', () => {
