@@ -138,7 +138,8 @@ describe('/api', () => {
             'topic',
             'created_at',
             'votes',
-            'comment_count'
+            'comment_count',
+            'total_count'
           );
         });
     });
@@ -398,7 +399,8 @@ describe('/api', () => {
                 'votes',
                 'created_at',
                 'author',
-                'body'
+                'body',
+                'total_count'
               );
             });
         });

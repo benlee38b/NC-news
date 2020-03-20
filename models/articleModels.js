@@ -49,7 +49,9 @@ exports.selectArticleById = (article_id, query) => {
       if (query.author && articles.data.length === 0) {
         return selectUserByUsername(query.author);
       }
-
+      articles.data.forEach(article => {
+        article.total_count = articles.pagination.total;
+      });
       if (articles.data.length === 1) return articles.data[0];
       else return articles.data;
     });
@@ -113,6 +115,9 @@ exports.selectCommentsByArticleId = (article_id, query) => {
     .where({ article_id })
     .paginate({ perPage: query.limit || 10, currentPage: query.p || 1 })
     .then(comments => {
+      comments.data.forEach(comment => {
+        comment.total_count = comments.pagination.total;
+      });
       if (comments.data.length === 0) return checkIfArticleIdExists(article_id);
       return comments.data;
     });
