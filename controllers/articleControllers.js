@@ -8,10 +8,11 @@ const {
 exports.getArticles = (req, res, next) => {
   selectArticleById(req.params.article_id, req.query)
     .then(articles => {
-      res.send({ articles });
+      if (Array.isArray(articles) === true) {
+        res.send({ articles });
+      } else res.send({ article: articles });
     })
     .catch(err => {
-      console.log(err, 'hello');
       if (err.code === '22P02') err.message = 'Article_id Not Valid';
       if (err.code === '42703') err.message = 'Invalid query input';
       next(err);
@@ -23,7 +24,7 @@ exports.patchArticleById = (req, res, next) => {
   const inc_votes = req.body.inc_votes;
   updateArticleById(article_id, inc_votes)
     .then(article => {
-      res.status(201).send({ article });
+      res.status(200).send({ article });
     })
     .catch(err => {
       if (err.code === '22P02') err.message = 'Invalid Article Id';

@@ -6,6 +6,7 @@ const { send405Error } = require('../errorHandling.js');
 topicRouter
   .route('/')
   .get(getTopics)
+  .all(send405Error)
   .all(send405Error);
 
 module.exports = { topicRouter };

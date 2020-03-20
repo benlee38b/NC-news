@@ -6,7 +6,7 @@ const { articleRouter } = require('./articleRouter');
 const { commentRouter } = require('./commentRouter');
 
 apiRouter.use('/topics', topicRouter);
-apiRouter.use('/user', userRouter);
+apiRouter.use('/users', userRouter);
 apiRouter.use('/articles', articleRouter);
 apiRouter.use('/comments', commentRouter);
 

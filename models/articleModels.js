@@ -18,7 +18,10 @@ exports.selectArticleById = (article_id, query) => {
     .count('comments.article_id AS comment_count')
     .modify(queryBuilder => {
       if (query.sort_by) {
-        queryBuilder.orderBy(query.sort_by, query.order || 'DESC');
+        queryBuilder.orderBy(
+          query.sort_by || 'created_at',
+          query.order || 'DESC'
+        );
       }
     })
     .modify(queryBuilder => {
@@ -27,8 +30,8 @@ exports.selectArticleById = (article_id, query) => {
       }
     })
     .modify(queryBuilder => {
-      if (query.username) {
-        queryBuilder.where('articles.author', '=', `${query.username}`);
+      if (query.author) {
+        queryBuilder.where('articles.author', '=', `${query.author}`);
       }
     })
     .modify(queryBuilder => {
@@ -37,49 +40,21 @@ exports.selectArticleById = (article_id, query) => {
       }
     })
     .then(articles => {
-      // console.log(articles);
       if (articles.length === 0 && article_id) {
         return Promise.reject({
           status: 404,
           message: 'Article_id Not Found'
         });
       }
+
       if (query.topic && articles.length === 0) {
-        return selectTopics().then(res => {
-          const topic = res.filter(topic => {
-            if (topic.slug === query.topic) {
-              return topic;
-            }
-          });
-          console.log(topic);
-          if (topic.length > 0 && articles.length === 0) {
-            return Promise.reject({
-              status: 404,
-              message: 'No articles associated with topic in query'
-            });
-          } else {
-            return Promise.reject({
-              status: 404,
-              message: 'Topic does not exist'
-            });
-          }
-        });
+        return selectTopics(query.topic);
       }
-      if (query.username && articles.length === 0) {
-        return selectUserByUsername(query.username).then(user => {
-          if (user.hasOwnProperty('username')) {
-            return Promise.reject({
-              status: 404,
-              message: 'No Articles Associated With Username In Query'
-            });
-          } else if (articles.length === 0) {
-            return Promise.reject({
-              status: 404,
-              message: 'Username Does Not Exist'
-            });
-          }
-        });
+
+      if (query.author && articles.length === 0) {
+        return selectUserByUsername(query.author);
       }
+
       if (articles.length === 1) return articles[0];
       else return articles;
     });
@@ -100,7 +75,7 @@ exports.updateArticleById = (article_id, inc_votes) => {
   }
   return connection('articles')
     .where({ article_id })
-    .increment('votes', inc_votes)
+    .increment('votes', inc_votes || 0)
     .returning('*')
     .then(article => {
       if (article.length === 0) {
@@ -118,7 +93,6 @@ exports.insertCommentByArticleId = (author, body, article_id) => {
     .insert({ author, body, article_id })
     .returning('*')
     .then(comment => {
-      console.log(comment);
       if (comment.length === 0) {
         return Promise.reject({
           status: 404,
@@ -131,6 +105,7 @@ exports.insertCommentByArticleId = (author, body, article_id) => {
 
 exports.selectCommentsByArticleId = (article_id, sort_by, order) => {
   const regex = /(asc)|(desc)/g;
+
   if (regex.test(order) === false && order) {
     return Promise.reject({
       status: 400,
@@ -141,12 +116,17 @@ exports.selectCommentsByArticleId = (article_id, sort_by, order) => {
     .select('*')
     .modify(queryBuilder => {
       if (sort_by) {
-        queryBuilder.orderBy(sort_by, order || 'desc');
+        queryBuilder.orderBy(sort_by || 'created_at', order || 'desc');
       }
     })
     .where({ article_id })
     .then(comments => {
-      console.log(comments);
+      if (comments.length === 0) {
+        return Promise.reject({
+          status: 404,
+          message: 'Article_Id Does Not Exist'
+        });
+      }
       return comments;
     });
 };

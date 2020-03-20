@@ -22,8 +22,16 @@ const customExpressErrors = (err, req, res, next) => {
 };
 
 const send405Error = (req, res, next) => {
-  console.log('here');
   res.status(405).send({ message: 'method not allowed' });
 };
 
-module.exports = { send405Error, customExpressErrors, psqlErrors };
+const send500Error = (err, req, res, next) => {
+  res.status(500).send({ message: 'Internal server error' });
+};
+
+module.exports = {
+  send405Error,
+  customExpressErrors,
+  psqlErrors,
+  send500Error
+};

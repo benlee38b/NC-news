@@ -54,7 +54,7 @@ describe('/api', () => {
     describe('/:username', () => {
       it('GET:200 - responds with a user object based on the username provided in the params', () => {
         return request(app)
-          .get('/api/user/butter_bridge')
+          .get('/api/users/butter_bridge')
           .expect(200)
           .then(res => {
             expect(res.body.user).to.eql({
@@ -67,7 +67,7 @@ describe('/api', () => {
       });
       it('GET:404 - responds with an appropriate error message when the provided username does not exist', () => {
         return request(app)
-          .get('/api/user/cheeze_wizz')
+          .get('/api/users/cheeze_wizz')
           .expect(404)
           .then(res => {
             expect(res.body.message).to.eql('Username Does Not Exist');
@@ -75,7 +75,7 @@ describe('/api', () => {
       });
       it('GET:400 - responds with an appropriate error message when the provided username is not valid', () => {
         return request(app)
-          .get('/api/user/:::::')
+          .get('/api/users/:::::')
           .expect(400)
           .then(res => {
             expect(res.body.message).to.eql('Username Not valid');
@@ -85,7 +85,7 @@ describe('/api', () => {
         const invalidMethods = ['patch', 'put', 'post', 'delete'];
         const methodPromises = invalidMethods.map(method => {
           return request(app)
-            [method]('/api/user/butter_bridge')
+            [method]('/api/users/butter_bridge')
             .expect(405)
             .then(({ body: { message } }) => {
               expect(message).to.equal('method not allowed');
@@ -139,7 +139,7 @@ describe('/api', () => {
     });
     it('GET:200 - responds with an array of articles objects filtered by author username', () => {
       return request(app)
-        .get('/api/articles?username=butter_bridge')
+        .get('/api/articles?author=butter_bridge')
         .expect(200)
         .then(res => {
           res.body.articles.forEach(article => {
@@ -149,20 +149,10 @@ describe('/api', () => {
     });
     it('GET:404 - responds with an appropriate error message when username in query does not exist', () => {
       return request(app)
-        .get('/api/articles?username=abasaf')
+        .get('/api/articles?author=abasaf')
         .expect(404)
         .then(res => {
           expect(res.body.message).to.eql('Username Does Not Exist');
-        });
-    });
-    it('GET:404 - responds with an appropriate error message when username exists but has no articles associated with it', () => {
-      return request(app)
-        .get('/api/articles?username=lurker')
-        .expect(404)
-        .then(res => {
-          expect(res.body.message).to.eql(
-            'No Articles Associated With Username In Query'
-          );
         });
     });
     it('GET:200 - responds with an array of articles objects filtered by topic specified in the query', () => {
@@ -175,23 +165,26 @@ describe('/api', () => {
           });
         });
     });
-    it('GET:404 - responds with an appropriate error message when topic exists but has no articles associated with it', () => {
-      return request(app)
-        .get('/api/articles?topic=paper')
-        .expect(404)
-        .then(res => {
-          expect(res.body.message).to.eql(
-            'No articles associated with topic in query'
-          );
-        });
-    });
+
     it('GET:404 - responds with an appropriate error message when topic in query does not exist', () => {
       return request(app)
         .get('/api/articles?topic=abasaf')
         .expect(404)
         .then(res => {
-          expect(res.body.message).to.eql('Topic does not exist');
+          expect(res.body.message).to.eql('Topic Does Not Exist');
         });
+    });
+    it('status:405 when invalid methods applied to path', () => {
+      const invalidMethods = ['patch', 'put', 'post', 'delete'];
+      const methodPromises = invalidMethods.map(method => {
+        return request(app)
+          [method]('/api/articles')
+          .expect(405)
+          .then(({ body: { message } }) => {
+            expect(message).to.equal('method not allowed');
+          });
+      });
+      return Promise.all(methodPromises);
     });
 
     describe('/:article_id', () => {
@@ -200,7 +193,7 @@ describe('/api', () => {
           .get('/api/articles/1')
           .expect(200)
           .then(res => {
-            expect(res.body.articles.article_id).to.equal(1);
+            expect(res.body.article.article_id).to.equal(1);
           });
       });
       it('GET:200 - returned article object has a key of comment_count totaling the comments attached to the passed article_id', () => {
@@ -208,7 +201,7 @@ describe('/api', () => {
           .get('/api/articles/1')
           .expect(200)
           .then(res => {
-            expect(res.body.articles.comment_count).to.equal('13');
+            expect(res.body.article.comment_count).to.equal('13');
           });
       });
       it('GET:404 - responds with an appropriate error message when the article_id cannot be found', () => {
@@ -227,11 +220,11 @@ describe('/api', () => {
             expect(res.body.message).to.eql('Article_id Not Valid');
           });
       });
-      it('PATCH:201 - responds with an article object with the votes key incremented by a value stated in the request body', () => {
+      it('PATCH:200 - responds with an article object with the votes key incremented by a value stated in the request body', () => {
         return request(app)
           .patch('/api/articles/1')
           .send({ inc_votes: 50 })
-          .expect(201)
+          .expect(200)
           .then(res => {
             expect(res.body.article.votes).to.eql(150);
           });
@@ -275,6 +268,18 @@ describe('/api', () => {
           .then(res => {
             expect(res.body.message).to.eql('Article_Id Not Found');
           });
+      });
+      it('status:405 when invalid methods applied to path', () => {
+        const invalidMethods = ['put', 'post', 'delete'];
+        const methodPromises = invalidMethods.map(method => {
+          return request(app)
+            [method]('/api/articles/1')
+            .expect(405)
+            .then(({ body: { message } }) => {
+              expect(message).to.equal('method not allowed');
+            });
+        });
+        return Promise.all(methodPromises);
       });
       describe('/comments', () => {
         it('POST:201 - responds with an object of the comment', () => {
@@ -368,6 +373,15 @@ describe('/api', () => {
               expect(res.body.comments).to.be.ascendingBy('comment_id');
             });
         });
+        it('GET:404 - responds with an appropriate error message when article Id is valid but does not exist', () => {
+          return request(app)
+            .get('/api/articles/999/comments')
+            .expect(404)
+            .then(res => {
+              expect(res.body.message).to.eql('Article_Id Does Not Exist');
+            });
+        });
+
         it('GET:400 - responds with an appropriate error message when sort_by column does not exist', () => {
           return request(app)
             .get('/api/articles/1/comments?sort_by=cheese')
@@ -384,16 +398,28 @@ describe('/api', () => {
               expect(res.body.message).to.eql('Invalid query value');
             });
         });
+        it('status:405 when invalid methods applied to path', () => {
+          const invalidMethods = ['patch', 'put', 'delete'];
+          const methodPromises = invalidMethods.map(method => {
+            return request(app)
+              [method]('/api/articles/1/comments')
+              .expect(405)
+              .then(({ body: { message } }) => {
+                expect(message).to.equal('method not allowed');
+              });
+          });
+          return Promise.all(methodPromises);
+        });
       });
     });
   });
   describe('/comments', () => {
     describe('/:comment_id', () => {
-      it('PATCH: 201', () => {
+      it('PATCH: 200', () => {
         return request(app)
           .patch('/api/comments/2')
           .send({ inc_votes: 20 })
-          .expect(201)
+          .expect(200)
           .then(res => {
             expect(res.body.comment.votes).to.eql(34);
           });
@@ -441,6 +467,26 @@ describe('/api', () => {
           .then(res => {
             expect(res.body).to.eql({});
           });
+      });
+      it('DELETE: 404 - responds with an appropriate error message when comment_id is not found', () => {
+        return request(app)
+          .delete('/api/comments/999')
+          .expect(404)
+          .then(res => {
+            expect(res.body.message).to.eql('Comment_id Not Found');
+          });
+      });
+      it('status:405 when invalid methods applied to path', () => {
+        const invalidMethods = ['get', 'put', 'post'];
+        const methodPromises = invalidMethods.map(method => {
+          return request(app)
+            [method]('/api/comments/1')
+            .expect(405)
+            .then(({ body: { message } }) => {
+              expect(message).to.equal('method not allowed');
+            });
+        });
+        return Promise.all(methodPromises);
       });
     });
   });

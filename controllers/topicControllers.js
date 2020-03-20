@@ -1,7 +1,7 @@
 const { selectTopics } = require('../models/topicModels');
 
 exports.getTopics = (req, res, next) => {
-  selectTopics().then(topics => {
+  selectTopics(req.body.params).then(topics => {
     res.send({ topics });
   });
 };
