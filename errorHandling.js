@@ -26,6 +26,7 @@ const send405Error = (req, res, next) => {
 };
 
 const send500Error = (err, req, res, next) => {
+  console.log(err);
   res.status(500).send({ message: 'Internal server error' });
 };
 
