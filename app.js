@@ -1,16 +1,18 @@
 const express = require('express');
+const cors = require('cors');
 const app = express();
 const { apiRouter } = require('./routers/apiRouter');
 const {
   customExpressErrors,
   psqlErrors,
-  send500Error
+  send500Error,
 } = require('./errorHandling');
+app.use(cors());
 app.use(express.json());
 
 app.use('/api', apiRouter);
 
-app.get('/', function(req, res) {
+app.get('/', function (req, res) {
   res.send('root');
 });
 
