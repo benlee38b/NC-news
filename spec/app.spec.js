@@ -20,7 +20,7 @@ describe('/api', () => {
     return request(app)
       .get('/api')
       .expect(200)
-      .then(res => {
+      .then((res) => {
         expect(res.body.endpoints.endpoints).to.eql({
           1: '/api',
           2: '/api/topics',
@@ -28,13 +28,13 @@ describe('/api', () => {
           4: '/api/articles',
           5: '/api/articles/:article_id',
           6: '/api/articles/:article_id/comments',
-          7: '/api/comments/:comment_id'
+          7: '/api/comments/:comment_id',
         });
       });
   });
   it('status:405 when invalid methods applied to path', () => {
     const invalidMethods = ['patch', 'put', 'post', 'delete'];
-    const methodPromises = invalidMethods.map(method => {
+    const methodPromises = invalidMethods.map((method) => {
       return request(app)
         [method]('/api')
         .expect(405)
@@ -50,7 +50,7 @@ describe('/api', () => {
       return request(app)
         .get('/api/topics')
         .expect(200)
-        .then(res => {
+        .then((res) => {
           expect(res.body.topics[0]).to.contain.keys('slug', 'description');
           expect(res.body.topics).to.be.an('array');
           expect(res.body.topics.length).to.equal(3);
@@ -59,7 +59,7 @@ describe('/api', () => {
 
     it('status:405 when invalid methods applied to path', () => {
       const invalidMethods = ['patch', 'put', 'post', 'delete'];
-      const methodPromises = invalidMethods.map(method => {
+      const methodPromises = invalidMethods.map((method) => {
         return request(app)
           [method]('/api/topics')
           .expect(405)
@@ -74,7 +74,7 @@ describe('/api', () => {
       return request(app)
         .get('/api/adghdkgfhsdhg')
         .expect(404)
-        .then(res => {
+        .then((res) => {
           expect(res.body.message).to.equal('404: File Not Found');
         });
     });
@@ -85,12 +85,12 @@ describe('/api', () => {
         return request(app)
           .get('/api/users/butter_bridge')
           .expect(200)
-          .then(res => {
+          .then((res) => {
             expect(res.body.user).to.eql({
               username: 'butter_bridge',
               name: 'jonny',
               avatar_url:
-                'https://www.healthytherapies.com/wp-content/uploads/2016/06/Lime3.jpg'
+                'https://www.healthytherapies.com/wp-content/uploads/2016/06/Lime3.jpg',
             });
           });
       });
@@ -98,7 +98,7 @@ describe('/api', () => {
         return request(app)
           .get('/api/users/cheeze_wizz')
           .expect(404)
-          .then(res => {
+          .then((res) => {
             expect(res.body.message).to.eql('Username Does Not Exist');
           });
       });
@@ -106,13 +106,13 @@ describe('/api', () => {
         return request(app)
           .get('/api/users/:::::')
           .expect(400)
-          .then(res => {
+          .then((res) => {
             expect(res.body.message).to.eql('Username Not valid');
           });
       });
       it('status:405 when invalid methods applied to path', () => {
         const invalidMethods = ['patch', 'put', 'post', 'delete'];
-        const methodPromises = invalidMethods.map(method => {
+        const methodPromises = invalidMethods.map((method) => {
           return request(app)
             [method]('/api/users/butter_bridge')
             .expect(405)
@@ -129,7 +129,7 @@ describe('/api', () => {
       return request(app)
         .get('/api/articles')
         .expect(200)
-        .then(res => {
+        .then((res) => {
           expect(res.body.articles).to.be.an('array');
           expect(res.body.articles[0]).to.be.an('object');
           expect(res.body.articles[0]).to.contain.keys(
@@ -147,7 +147,7 @@ describe('/api', () => {
       return request(app)
         .get('/api/articles?sort_by=votes')
         .expect(200)
-        .then(res => {
+        .then((res) => {
           expect(res.body.articles).to.descendingBy('votes');
         });
     });
@@ -155,7 +155,7 @@ describe('/api', () => {
       return request(app)
         .get('/api/articles?limit=5')
         .expect(200)
-        .then(res => {
+        .then((res) => {
           expect(res.body.articles.length).to.eql(5);
         });
     });
@@ -163,7 +163,7 @@ describe('/api', () => {
       return request(app)
         .get('/api/articles?p=2')
         .expect(200)
-        .then(res => {
+        .then((res) => {
           expect(res.body.articles.length).to.equal(2);
         });
     });
@@ -171,7 +171,7 @@ describe('/api', () => {
       return request(app)
         .get('/api/articles?sort_by=cheese')
         .expect(400)
-        .then(res => {
+        .then((res) => {
           expect(res.body.message).to.eql('Invalid query input');
         });
     });
@@ -179,7 +179,7 @@ describe('/api', () => {
       return request(app)
         .get('/api/articles?sort_by=votes&order=ASC')
         .expect(200)
-        .then(res => {
+        .then((res) => {
           expect(res.body.articles).to.ascendingBy('votes');
         });
     });
@@ -187,8 +187,8 @@ describe('/api', () => {
       return request(app)
         .get('/api/articles?author=butter_bridge')
         .expect(200)
-        .then(res => {
-          res.body.articles.forEach(article => {
+        .then((res) => {
+          res.body.articles.forEach((article) => {
             expect(article.author).to.eql('butter_bridge');
           });
         });
@@ -197,7 +197,7 @@ describe('/api', () => {
       return request(app)
         .get('/api/articles?author=abasaf')
         .expect(404)
-        .then(res => {
+        .then((res) => {
           expect(res.body.message).to.eql('Username Does Not Exist');
         });
     });
@@ -205,8 +205,8 @@ describe('/api', () => {
       return request(app)
         .get('/api/articles?topic=mitch')
         .expect(200)
-        .then(res => {
-          res.body.articles.forEach(article => {
+        .then((res) => {
+          res.body.articles.forEach((article) => {
             expect(article.topic).to.eql('mitch');
           });
         });
@@ -216,13 +216,13 @@ describe('/api', () => {
       return request(app)
         .get('/api/articles?topic=abasaf')
         .expect(404)
-        .then(res => {
+        .then((res) => {
           expect(res.body.message).to.eql('Topic Does Not Exist');
         });
     });
     it('status:405 when invalid methods applied to path', () => {
       const invalidMethods = ['patch', 'put', 'post', 'delete'];
-      const methodPromises = invalidMethods.map(method => {
+      const methodPromises = invalidMethods.map((method) => {
         return request(app)
           [method]('/api/articles')
           .expect(405)
@@ -238,7 +238,7 @@ describe('/api', () => {
         return request(app)
           .get('/api/articles/1')
           .expect(200)
-          .then(res => {
+          .then((res) => {
             expect(res.body.article.article_id).to.equal(1);
           });
       });
@@ -246,7 +246,7 @@ describe('/api', () => {
         return request(app)
           .get('/api/articles/1')
           .expect(200)
-          .then(res => {
+          .then((res) => {
             expect(res.body.article.comment_count).to.equal('13');
           });
       });
@@ -254,7 +254,7 @@ describe('/api', () => {
         return request(app)
           .get('/api/articles/999')
           .expect(404)
-          .then(res => {
+          .then((res) => {
             expect(res.body.message).to.eql('Article_id Not Found');
           });
       });
@@ -262,7 +262,7 @@ describe('/api', () => {
         return request(app)
           .get('/api/articles/not-a-number')
           .expect(400)
-          .then(res => {
+          .then((res) => {
             expect(res.body.message).to.eql('Article_id Not Valid');
           });
       });
@@ -271,7 +271,7 @@ describe('/api', () => {
           .patch('/api/articles/1')
           .send({ inc_votes: 50 })
           .expect(200)
-          .then(res => {
+          .then((res) => {
             expect(res.body.article.votes).to.eql(150);
           });
       });
@@ -280,7 +280,7 @@ describe('/api', () => {
           .patch('/api/articles/1')
           .send({})
           .expect(400)
-          .then(res => {
+          .then((res) => {
             expect(res.body.message).to.eql(
               'Invalid Input: Missing Required Fields'
             );
@@ -291,7 +291,7 @@ describe('/api', () => {
           .patch('/api/articles/1')
           .send({ inc_votes: 'not-a-number' })
           .expect(400)
-          .then(res => {
+          .then((res) => {
             expect(res.body.message).to.eql(
               'Invalid increment value on request'
             );
@@ -302,7 +302,7 @@ describe('/api', () => {
           .patch('/api/articles/not-a-number')
           .send({ inc_votes: 50 })
           .expect(400)
-          .then(res => {
+          .then((res) => {
             expect(res.body.message).to.eql('Invalid Article Id');
           });
       });
@@ -311,13 +311,13 @@ describe('/api', () => {
           .patch('/api/articles/999')
           .send({ inc_votes: 50 })
           .expect(404)
-          .then(res => {
+          .then((res) => {
             expect(res.body.message).to.eql('Article_Id Not Found');
           });
       });
       it('status:405 when invalid methods applied to path', () => {
         const invalidMethods = ['put', 'post', 'delete'];
-        const methodPromises = invalidMethods.map(method => {
+        const methodPromises = invalidMethods.map((method) => {
           return request(app)
             [method]('/api/articles/1')
             .expect(405)
@@ -334,10 +334,10 @@ describe('/api', () => {
             .send({
               username: 'butter_bridge',
               body:
-                'what an awful article you have written you should be ashamed'
+                'what an awful article you have written you should be ashamed',
             })
             .expect(201)
-            .then(res => {
+            .then((res) => {
               expect(res.body.comment).to.contain.keys(
                 'author',
                 'body',
@@ -354,10 +354,10 @@ describe('/api', () => {
             .post('/api/articles/1/comments')
             .send({
               body:
-                'what an awful article you have written you should be ashamed'
+                'what an awful article you have written you should be ashamed',
             })
             .expect(400)
-            .then(res => {
+            .then((res) => {
               expect(res.body.message).to.eql('Missing Required Fields');
             });
         });
@@ -367,10 +367,10 @@ describe('/api', () => {
             .send({
               username: 'butter_bridge',
               body:
-                'what an awful article you have written you should be ashamed'
+                'what an awful article you have written you should be ashamed',
             })
             .expect(400)
-            .then(res => {
+            .then((res) => {
               expect(res.body.message).to.eql('Invalid Article Id');
             });
         });
@@ -380,10 +380,10 @@ describe('/api', () => {
             .send({
               username: 'butter_bridge',
               body:
-                'what an awful article you have written you should be ashamed'
+                'what an awful article you have written you should be ashamed',
             })
             .expect(404)
-            .then(res => {
+            .then((res) => {
               expect(res.body.message).to.eql('Article_Id Does Not Exist');
             });
         });
@@ -391,10 +391,10 @@ describe('/api', () => {
           return request(app)
             .get('/api/articles/1/comments')
             .expect(200)
-            .then(res => {
-              expect(res.body.comments).to.be.an('array');
-              expect(res.body.comments[0]).to.be.an('object');
-              expect(res.body.comments[0]).to.contain.keys(
+            .then((res) => {
+              expect(res.body.comments.data).to.be.an('array');
+              expect(res.body.comments.data[0]).to.be.an('object');
+              expect(res.body.comments.data[0]).to.contain.keys(
                 'comment_id',
                 'votes',
                 'created_at',
@@ -408,16 +408,16 @@ describe('/api', () => {
           return request(app)
             .get('/api/articles/1/comments?sort_by=votes')
             .expect(200)
-            .then(res => {
-              expect(res.body.comments).to.be.descendingBy('votes');
+            .then((res) => {
+              expect(res.body.comments.data).to.be.descendingBy('votes');
             });
         });
         it('GET:200 - responds with an array of comments with a length limited by a query value', () => {
           return request(app)
             .get('/api/articles/1/comments?limit=5')
             .expect(200)
-            .then(res => {
-              expect(res.body.comments.length).to.equal(5);
+            .then((res) => {
+              expect(res.body.comments.data.length).to.equal(5);
             });
         });
 
@@ -425,7 +425,7 @@ describe('/api', () => {
           return request(app)
             .get('/api/articles/2/comments')
             .expect(200)
-            .then(res => {
+            .then((res) => {
               expect(res.body.comments).to.eql([]);
             });
         });
@@ -433,15 +433,15 @@ describe('/api', () => {
           return request(app)
             .get('/api/articles/1/comments?sort_by=comment_id&order=asc')
             .expect(200)
-            .then(res => {
-              expect(res.body.comments).to.be.ascendingBy('comment_id');
+            .then((res) => {
+              expect(res.body.comments.data).to.be.ascendingBy('comment_id');
             });
         });
         it('GET:404 - responds with an appropriate error message when article Id is valid but does not exist', () => {
           return request(app)
             .get('/api/articles/999/comments')
             .expect(404)
-            .then(res => {
+            .then((res) => {
               expect(res.body.message).to.eql('Article_Id Does Not Exist');
             });
         });
@@ -450,7 +450,7 @@ describe('/api', () => {
           return request(app)
             .get('/api/articles/1/comments?sort_by=cheese')
             .expect(400)
-            .then(res => {
+            .then((res) => {
               expect(res.body.message).to.eql('Invalid query value');
             });
         });
@@ -458,13 +458,13 @@ describe('/api', () => {
           return request(app)
             .get('/api/articles/1/comments?sort_by=votes&order=cheese')
             .expect(400)
-            .then(res => {
+            .then((res) => {
               expect(res.body.message).to.eql('Invalid query value');
             });
         });
         it('status:405 when invalid methods applied to path', () => {
           const invalidMethods = ['patch', 'put', 'delete'];
-          const methodPromises = invalidMethods.map(method => {
+          const methodPromises = invalidMethods.map((method) => {
             return request(app)
               [method]('/api/articles/1/comments')
               .expect(405)
@@ -484,7 +484,7 @@ describe('/api', () => {
           .patch('/api/comments/2')
           .send({ inc_votes: 20 })
           .expect(200)
-          .then(res => {
+          .then((res) => {
             expect(res.body.comment.votes).to.eql(34);
           });
       });
@@ -493,7 +493,7 @@ describe('/api', () => {
           .patch('/api/comments/not-a-number')
           .send({ inc_votes: 20 })
           .expect(400)
-          .then(res => {
+          .then((res) => {
             expect(res.body.message).to.eql('Comment_id is not valid');
           });
       });
@@ -502,7 +502,7 @@ describe('/api', () => {
           .patch('/api/comments/999')
           .send({ inc_votes: 20 })
           .expect(404)
-          .then(res => {
+          .then((res) => {
             expect(res.body.message).to.eql('Comment_id Not Found');
           });
       });
@@ -511,7 +511,7 @@ describe('/api', () => {
           .patch('/api/comments/999')
           .send({})
           .expect(400)
-          .then(res => {
+          .then((res) => {
             expect(res.body.message).to.eql('Missing Required Fields');
           });
       });
@@ -520,7 +520,7 @@ describe('/api', () => {
           .patch('/api/comments/999')
           .send({ inc_votes: 'not-a-number' })
           .expect(400)
-          .then(res => {
+          .then((res) => {
             expect(res.body.message).to.eql('Increment Value Invalid');
           });
       });
@@ -528,7 +528,7 @@ describe('/api', () => {
         return request(app)
           .delete('/api/comments/2')
           .expect(204)
-          .then(res => {
+          .then((res) => {
             expect(res.body).to.eql({});
           });
       });
@@ -536,13 +536,13 @@ describe('/api', () => {
         return request(app)
           .delete('/api/comments/999')
           .expect(404)
-          .then(res => {
+          .then((res) => {
             expect(res.body.message).to.eql('Comment_id Not Found');
           });
       });
       it('status:405 when invalid methods applied to path', () => {
         const invalidMethods = ['get', 'put', 'post'];
-        const methodPromises = invalidMethods.map(method => {
+        const methodPromises = invalidMethods.map((method) => {
           return request(app)
             [method]('/api/comments/1')
             .expect(405)
