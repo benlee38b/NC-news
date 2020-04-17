@@ -159,7 +159,7 @@ describe('/api', () => {
           expect(res.body.articles.length).to.eql(5);
         });
     });
-    it('GET:200 - responds with an array of comments corresponding to the current page query used in the end point', () => {
+    it('GET:200 - responds with an array of articles corresponding to the current page query used in the end point', () => {
       return request(app)
         .get('/api/articles?p=2')
         .expect(200)

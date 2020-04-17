@@ -2,17 +2,17 @@ const {
   selectArticleById,
   updateArticleById,
   insertCommentByArticleId,
-  selectCommentsByArticleId
+  selectCommentsByArticleId,
 } = require('../models/articleModels');
 
 exports.getArticles = (req, res, next) => {
   selectArticleById(req.params.article_id, req.query)
-    .then(articles => {
+    .then((articles) => {
       if (Array.isArray(articles) === true) {
         res.send({ articles });
       } else res.send({ article: articles });
     })
-    .catch(err => {
+    .catch((err) => {
       if (err.code === '22P02') err.message = 'Article_id Not Valid';
       if (err.code === '42703') err.message = 'Invalid query input';
       next(err);
@@ -23,10 +23,10 @@ exports.patchArticleById = (req, res, next) => {
   const article_id = req.params.article_id;
   const inc_votes = req.body.inc_votes;
   updateArticleById(article_id, inc_votes)
-    .then(article => {
+    .then((article) => {
       res.status(200).send({ article });
     })
-    .catch(err => {
+    .catch((err) => {
       if (err.code === '22P02') err.message = 'Invalid Article Id';
       next(err);
     });
@@ -37,10 +37,10 @@ exports.postCommentByArticleId = (req, res, next) => {
   const author = req.body.username;
   const article_id = req.params.article_id;
   insertCommentByArticleId(author, body, article_id)
-    .then(comment => {
+    .then((comment) => {
       res.status(201).send({ comment });
     })
-    .catch(err => {
+    .catch((err) => {
       if (err.code === '23502') {
         err.message = 'Missing Required Fields';
       }
@@ -55,10 +55,10 @@ exports.postCommentByArticleId = (req, res, next) => {
 
 exports.getCommentsByArticleId = (req, res, next) => {
   selectCommentsByArticleId(req.params.article_id, req.query)
-    .then(comments => {
+    .then((comments) => {
       res.send({ comments });
     })
-    .catch(err => {
+    .catch((err) => {
       if (err.code === '42703') err.message = 'Invalid query value';
       next(err);
     });
